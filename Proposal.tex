@@ -1,0 +1,85 @@
+\documentclass[dvips,12pt]{article}
+% template from http://prancer.physics.louisville.edu/classes/308/project_proposal/proposal.tex
+% definitions from wikipedia
+
+% Any percent sign marks a comment to the end of the line
+
+% Every latex document starts with a documentclass declaration like this
+% The option dvips allows for graphics, 12pt is the font size, and article
+%   is the style
+
+\usepackage[pdftex]{graphicx}
+\usepackage{url,amsthm}
+
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} % reset theorem numbering for each chapter
+
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition} % definition numbers are dependent on theorem numbers
+\newtheorem{exmp}[thm]{Example} % same for example numbers
+
+\setlength{\oddsidemargin}{0.25in}
+\setlength{\textwidth}{6.5in}
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+
+% These force using more of the margins that is the default style
+
+\begin{document}
+
+% Everything after this becomes content
+% Replace the text between curly brackets with your own
+
+\title{CIS 410 Project Proposal on Hidden Subgroup Problem}
+\author{zhmeng wang, Dongmin Roh,Matthew Jagielski}
+\date{\today}
+
+% You can leave out "date" and it will be added automatically for today
+% You can change the "\today" date to any text you like
+
+
+\maketitle
+
+% This command causes the title to be created in the document
+
+\section{Motivation}
+
+% An article style is separated into sections and subsections with 
+%   markup such as this.  Use \section*{Principles} for unnumbered sections.
+The hidden subgroup problem (HSP) is an computational algebra problem which has been shown to have a lot of interesting consequences and motivations. For example, the problem of factoring integers and solving the discrete logarithm problem can be reduced to solving the HSP on finite abelian groups.
+
+\begin{defn}
+Given a group $G$, a subgroup $H\le G$, and a set $X$, a function $f:G\rightarrow X$ hides $H$ if $\forall g_1,g_2\in G, f(g_1)=f(g_2)$ iff $g_1H=g_2H$, that is, $g_1,g_2$ are in the same coset of $H$.
+\end{defn}
+
+\begin{defn}
+Now, the Hidden Subgroup Problem (HSP) is a problem with inputs: a group $G$, a set $X$, and a function oracle $f: G\rightarrow X$ hiding a subgroup $H$. The function oracle uses $\log(\mid G\mid + \mid X\mid)$ bits. The desired output is a generating set of $H$.
+\end{defn}
+
+In addition, quantum computers have been shown to have very good speedups for some instances of the problem. In fact, because quantum computers can solve the HSP on finite abelian groups in polynomial time, it is possible for quantum computers to factor integers much faster than classical computers can.\\
+
+Two unknowns regarding the HSP are whether the symmetric group and the dihedral group have efficient quantum algorithms for solving HSP. If an efficient quantum algorithm were to be found for the symmetric group HSP, we would have an efficient algorithm for graph isomorphism, a very important problem in theoretical computer science and for Eugene Luks. A polynomial time dihedral group HSP algorithm would give a polynomial time algorithm for solving the shortest vector problem on lattices, a problem which is very important for postquantum cryptography.\\
+
+Our group has some background in abstract algebra and algebraic number theory, so this is an attractive topic for us to explore. Also, one of us is studying the shortest vector problem for his undergraduate thesis, so this is of increased interest.\\
+
+\section{References}
+\begin{itemize}
+\item A quantum algorithm for computing the unit group of an
+arbitrary degree number field, by Kirsten Eisenträger, Sean Hallgren,Alexei Kitaev and Fang Song.
+	
+\item A Subexponential Time Algorithm for the Dihedral Hidden Subgroup Problem with Polynomial Space                                        by Oded Regev
+	
+	
+\item QUANTUM COMPUTATION AND LATTICE PROBLEMS by Oded Regev 
+	
+\end{itemize}
+
+
+\section{Timeline}
+Midterm Report: We will explore and identify the basic idea of the HSP problem and then review the thinking of the polynomial time algorithm to solve HSP problem. We want to understand the problem well and know the quantum algorithms that approach its solution by the midterm report. We will also know how the SVP reduction is done, as well as understanding other impacts for HSP on computer science and math.\\
+Final Presentation: Due by final presentation, I want to present a sketch of the construction of HSP on general abelian groups and to clarify its usage on main ideals of the generating set of general abelian groups and the vector spaces over a finite field. This includes being able to give intuition for the parts of the algorithms and for understanding the problems, as well.\\
+	
+
+\end{document}
