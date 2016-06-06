@@ -1,0 +1,241 @@
+\documentclass[12pt]{article}
+% template from http://prancer.physics.louisville.edu/classes/308/project_proposal/proposal.tex
+% definitions from wikipedia
+
+% Any percent sign marks a comment to the end of the line
+
+% Every latex document starts with a documentclass declaration like this
+% The option dvips allows for graphics, 12pt is the font size, and article
+%   is the style
+
+\usepackage[pdftex]{graphicx}
+\usepackage{url,amsthm, amsmath, amssymb}
+\usepackage[braket,qm]{qcircuit}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+
+
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem} % reset theorem numbering for each chapter
+\newtheorem{lem}{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{defn}[thm]{Definition} % definition numbers are dependent on theorem numbers
+\newtheorem{exmp}[thm]{Example} % same for example numbers
+
+\setlength{\oddsidemargin}{0.25in}
+\setlength{\textwidth}{6.5in}
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+
+% These force using more of the margins that is the default style
+
+\begin{document}
+
+% Everything after this becomes content
+% Replace the text between curly brackets with your own
+
+\title{CIS 410 Final Report on Hidden Subgroup Problem}
+\author{Zhimeng Wang, Dongmin Roh, Matthew Jagielski}
+\date{\today}
+
+% You can leave out "date" and it will be added automatically for today
+% You can change the "\today" date to any text you like
+
+
+\maketitle
+
+% This command causes the title to be created in the document
+
+\section{Motivation}
+
+% An article style is separated into sections and subsections with 
+%   markup such as this.  Use \section*{Principles} for unnumbered sections.
+The hidden subgroup problem (HSP) is an computational algebra problem which has been shown to have a lot of interesting consequences and motivations. For example, the \emph{Shor's quantum algorithm} of factoring integers and solving the discrete logarithm problem can be reduced to solving the HSP on finite abelian groups.
+
+\begin{defn}
+Given a group $G$, a subgroup $H\le G$, and a set $X$, a function $f:G\rightarrow X$ \textbf{hides} $H$ if $\forall g_1,g_2\in G, f(g_1)=f(g_2)$ iff $g_1H=g_2H$, that is, $g_1,g_2$ are in the same coset of $H$.
+\end{defn}
+
+\begin{defn}
+Now, the \textbf{Hidden Subgroup Problem (HSP)} is a problem with inputs: a group $G$, a set $X$, and a function oracle $f: G\rightarrow X$ hiding a subgroup $H$. The function oracle uses $\log(\mid G\mid + \mid X\mid)$ bits. The desired output is a generating set of $H$.
+\end{defn}
+
+It is known that there exits a quantum algorithm which solves with certainty a hidden subgroup problem of an arbitrary finite group in a polynomial (in $log|G|$) number of calls to the oracle. In addition, quantum computers have been shown to have very good speedups for some instances of the problem. In fact, because quantum computers can solve the HSP on finite abelian groups in polynomial time, it is possible for quantum computers to factor integers much faster than classical computers can.\\
+
+Two unknowns regarding the HSP are whether the symmetric group and the dihedral group have efficient quantum algorithms for solving HSP. If an efficient quantum algorithm were to be found for the symmetric group HSP, we would have an efficient algorithm for \emph{graph isomorphism}, a very important problem in theoretical computer science and for Eugene Luks. A polynomial time dihedral group HSP algorithm would give a polynomial time algorithm for solving the \emph{shortest vector problem on lattices}, a problem which is...(line truncated)...
+
+Our group has some background in abstract algebra and algebraic number theory, so this is an attractive topic for us to explore. Also, one of us is studying the shortest vector problem for his undergraduate thesis, so this is of increased interest.\\
+%
+% End of Motivation
+
+% Start Midterm report
+%
+\section{Quantum Complexity Results}
+
+%%%
+%%% Start however many subsections as you want!
+%%% Also anyone is welcome to edit any section as desired!
+%%%
+
+% Started By Dong
+\subsection{Quantum Time Complexity of an Abelian Group}
+
+\subsection{Quantum Query Complexity of a Finite Group}
+Our motivation is to find an efficient quantum algorithm which can solve the HSP for any arbitrary finite group $G$ in a polynomial calls to the given oracle. Given $r$ many distinct subgroups of $G$, we are looking for a generating set for one of the subgroups. We can assume that any algorithms for the HSP always output a subset of a subgroup $H$; if an algorithm outputs some subset $X\nsubseteq H$, we simply find the intersection of $X$ with $H$ by keeping $x\in X$ only if $f(x)=f(1_G)$.
+\newline
+Let $f$ be a function satisfying the conditions of the HSP. Fix an ordering of the distinct subgroups $H_1,H_2,\ldots,H_r$ such that $|H_{i}|\geq|H_{i+1}|$ for all $1\leq i \leq r$.\footnote{
+if a function is $H$-periodic then it is also $H'$-periodic for a proper subgroup $H'$ of $H$. And we want to test for bigger subgroups first.}
+Also let $N=|G|$ and consider $n=log|G|$ to be the input size. 
+\footnote{
+We know that the number of $r$ is $2^{O(n^2)}$ since any $H_i$ is generated by a set of at most $n$ elements of $G$}
+\begin{thm}\label{thm3}
+There exists a quantum algorithm that solves the HSP for any finite group $G$ in $O(log^4|G|)$ calls to the oracle. The algorithm has exponentially small error probability in $log|G|$.
+\end{thm}
+\noindent The algorithm considers $2+2s$ registers, where $s$ is a positive integer chosen to lower the error probability: 1st contains a subgroup index $1\leq v \leq r$, 2nd contains a counter $1\leq l \leq r$, remaining $2s$ are pairs of couplets so that in each couplet the first contains an element of $G$ and the second some image of $f$. We call the first register in a couplet as a "subgroup" register and the second as a "function" register.
+\newline
+We say that a function $f$ is H-\emph{periodic} if $f$ is constant of the left cosets of a subgroup $H$ of $G$. $H$ being a \emph{hidden subgroup} of $f$ is an instance of $f$ taking distinct values on distinct cosets of $H$.
+\newline
+A left \emph{translation} of a subgroup $H$ is a subset $T\subseteq G$ such that for any $g\in G$, $g=th$ for some $t\in T$ and $h\in H$.
+\newline
+We define an operator ${\mathsf{Test}}$ so that ${\mathsf{Test}}={\mathsf{Test_r}}\cdot\cdots\cdot{\mathsf{Test_2}}\cdot{\mathsf{Test_1}}$, where each unitary operator ${\mathsf{Test_i}}$ tests whether $f$ is $H_i$-periodic. Each ${\mathsf{Test_i}}$ is defined by ${\mathsf{Test_i}}=Q_i\otimes P_{s,i}+I\otimes P^{\perp}_{s,i}$ where
+$$Q_i:\quad\left\lbrace
+\begin{array}{rcl}
+\ket{0}\ket{0} & \mapsto & \ket{i}\ket{1} \\
+\ket{v}\ket{l} & \mapsto & \ket{v}\ket{l+1},
+\qquad\text{if $l>0$}
+\end{array}
+\right.
+\text{ and  } P_{s,i}=(\sum_{t\in T_i}\ket{tH_i}\bra{tH_i}\otimes I)^{\otimes s}
+$$
+Here $Q_i$ acts on the first two registers so that once the second register is increased from 0 to 1, the first register stays the same, and $P_{s,i}$ is the projector of the $s$ couplets. The effect of $\mathsf{Test_i}$ is that $Q_i$ is applied on the first two registers if $s$ subgroup registers are in coset states of $H_i$.
+\newline
+The initial state is defined as
+$$\ket{\Psi_{init}}=\ket{0}\ket{0}\otimes\Bigg(\frac{1}{\sqrt{N}}\sum_{g\in G}\ket{g}\ket{f(g)}\Bigg)^{\otimes s}$$
+\begin{lem}
+If $f$ is $H_i$-periodic, then
+$$\mathsf{Test_i}\ket{\Psi_{init}}=\ket{i}\ket{1}\otimes\Bigg(\frac{1}{\sqrt{N}}\sum_{g\in G}\ket{g}\ket{f(g)}\Bigg)^{\otimes s}$$
+\end{lem}
+\begin{proof}
+First, we realize that if $f$ is $H_i$-periodic then $s$ subgroup registers are in superposition of coset states $\ket{tH_i}=\frac{1}{\sqrt{|H_i|}}\sum_{h\in H_i}\ket{th}$ for $t\in T_i$, a translation of $H_i$. Also, $f$ begin $H_i$-periodic implies that $f(t)=f(th)$ for all $t\in T_i$ and $h\in H_i$. So the state $\frac{1}{\sqrt{N}}\sum_{g\in G}\ket{g}\ket{f(g)}=\frac{1}{\sqrt{N}}\sum_{t\in T_i}\ket{tH_i}\ket{f(g)}$ lives in +1-eigenspace of $P_{1,i}$, and hence $P_{s,i}$ leaves the $s$ coulets untouched. Thus, the lemma follows.
+\end{proof}
+\noindent At the end of the day, what we want to do is to apply the unitary $\mathsf{Test}$ to the initial state $\ket{\Psi_{init}}$ to get $\ket{\Psi_{final}}$. Then, we measure the first register of $\ket{\Psi_{final}}$ to get the subgroup index $v$, and if $1\leq v \leq r$ we output a generating set for $H_i$, otherwise we output ${1_G}$. But our output may be a wrong answer.
+\newline
+As we iterate through $r$ tests for the subgroups, we would wish to only alter the state marginally so that it is safe to continue to test for the next $H_{i+1}$ subgroup.
+\begin{lem}
+If $f$ is not $H_i$-periodic, then the distance $\big|(\mathsf{Test_i}\ket{\Psi_{init}})-\ket{\Psi_{init}}\big|$ is at most $\frac{2}{2^{s/2}}$.
+\end{lem}
+\noindent The next lemma follows since distances add up linearly.
+\begin{lem}
+If $f$ is not $H_i$-periodic for any $1\leq i \leq j$, then the distance $\big|\ket{\Psi_j}-\ket{\Psi_{init}}\big|$ is at most $\frac{2j}{2^{s+2}}$.
+\end{lem}
+\noindent At the beggining in the Theorem, we stated that the error probability is exponential. Great news is that we can make the algorithm exact by the use of amplitude amlification. This is something we want to show in the final paper.
+
+\section{Shor's algorithm reduct to HSP problem of $\mathbb{Z_{N}}$}
+  Shor's algorithm reduce the problem of  factorization of a composite natural number $\mathbb{N}$ to finding the order of an arbitrary non-identity element in $\mathbb{Z_{N}}$.  
+\begin{defn}
+	A group $\mathbb{Z_{N}}$ is the set of remainders of a natural number N, up to congruence class.
+\end{defn}
+\begin{defn}
+	
+	Order of an element $a$, where $gcd(a, N)=1$, in $\mathbb{Z_{N}}$ is defined by the smallest natural number $r$, that $a^{r}\equiv 1mod_{N}$.
+\end{defn}
+	
+Then by Lagrange's theorem, the order of all units in $\mathbb{Z_{N}}$ divide $\phi(N)$, the Euler function value of N, that is less than N, when N is greater than one.
+The Shor's algorithm begin with choose an arbitrary number in $a\in \{2,.....,$N-1$\}$ ,  then compute the $gcd(a, N)$, if it is not 1, then we already have a non-trivial divisor of $N$, if it is not one, then we apply it to oder finding algorithm to find the order.Then we get:
+\begin{center}                      $a^{r}\equiv 1mod_{N}$
+    \newline$\Rightarrow (a^{\frac{r}{2}-1})(a^{\frac{r}{2}}+1)$ 
+\end{center}  
+Then if $N|a^{\frac{r}{2}-1}$ , implies that $a^{\frac{r}{2}-1}mod_{N}\equiv 1mod_{N}$, then r is not the period, this cannot happen.
+Then N must divide $a^{\frac{r}{2}+1}$, then compute $gcd(a^{\frac{r}{2}-1},N)$ to get a non-trivial divisor of N.
+
+In this process the quantum order finding algorithm finds the period of this function:
+\newline \begin{center}$f: \mathbb{N}\to\mathbb{N}$
+\end{center}
+Then we have a function $f(a)=x^{a}$ $mod_{N}$ and $f(a)=f(b)$ iff $a=b+rk$, where k is an arbitrary integer. Thus it hides the subgroup of of $\mathbb{Z_{N}}$ which is generated by r. If the function $f: \mathbb{N}\to\mathbb{N}$ has period $r$, then $f(a)=f(b)$ iff a and b are in the same coset generated by r, i.e. $a\in b+<r>$. 
+
+
+
+\section{Dihedral Group HSP}
+In order to solve Dihedral Group HSP, we first need to characterize the subgroups of the Dihedral Group $D_N=\lbrace r,s| ord(r)=N,ord(s)=2,srs=r^{-1}\rbrace$. First, there are the cyclic subgroups generated by the set $\lbrace r^k|k\in\mathbb{Z}_N\rbrace$, which are normal in $D_N$. There are also dihedral subgroups, which are of the form $D_m$, where $m$ divides $N$. And the other subgroups are generated by $sr^k$ and are of order 2. \\
+In 1998, Ettinger and Hoyer	showed that it is possible to reduce the problem of solving the hidden subgroup problem on $D_N$ with hiding function $f$ to calculating $k$ assuming the hidden subgroup is generated $sr^k$. The reason is fairly simple. If the hidden subgroup is a cyclic subgroup of $D_N$, then it is normal in $D_N$ and can be calculated in polynomial time using previous results. If it is a dihedral subgroup $D_m$, then the hidden subgroup itself has a cyclic subgroup - it hides a cyclic subgroup $\left<r^k\right>$. We take the factor group $D_N/\left<r^k\right>$ after calculating $k$, and we find the hidden subgroup that remains $D_m/\left<r^k\right>$, which is just an order 2 subgroup. To recap, first we try to find if there is a cyclic subgroup that is hidden. If $\left<r^a\right>$ is hidden, we calculate $a$ using previously known results about finding hidden normal subgroups. After that, we take the factor group $D_N/\left<r^a\right>$ and see if the function $f$ hides an order 2 subgroup generated by $sr^k$ or if only the trivial subgroup remains. If both a cyclic and an order 2 subgroup was detected, we have a hidden dihedral subgroup. Otherwise, it is either a cyclic or an order 2 subgroup that is hidden and we have detected it. Now we move to the algorithm for detecting an order 2 subgroup.\\
+
+In order to solve Dihedral Group HSP, we first need to characterize the subgroups of the Dihedral Group 
+$D_N=\lbrace r,s| ord(r)=N,ord(s)=2,srs=r^{-1}\rbrace$.
+First, there are the cyclic subgroups generated by the set 
+$\lbrace r^k|k\in\mathbb{Z}_N\rbrace$, which are normal in $D_N$.
+There are also dihedral subgroups, which are of the form $D_m$, where $m$ divides $N$.
+And the other subgroups are generated by $sr^k$ and are of order 2. \\
+In 1998, Ettinger and Hoyer	showed that it is possible to reduce the problem of solving the hidden subgroup problem on $D_N$ with hiding function $f$, to calculating $k$ assuming the hidden subgroup is generated by $sr^k$.
+The reason is fairly straightforward. If the hidden subgroup is a cyclic subgroup of $D_N$, then it is normal in $D_N$ and can be calculated in polynomial time using previous results.
+If it is a dihedral subgroup $D_m$, then the hidden subgroup itself has a cyclic subgroup - $f$ hides a cyclic subgroup $\left<r^k\right>$.
+We take the quotient group $D_N/\left<r^k\right>$ after calculating $k$, and we find the hidden subgroup that remains $D_m/\left<r^k\right>$, which is just an order 2 subgroup.
+To recap, first we try to find if there is a cyclic subgroup that is hidden. If $\left<r^a\right>$ is hidden, we calculate $a$ using previously known results about finding hidden normal subgroups.
+After that, we take the quotient group $D_N/\left<r^a\right>$ and see if the function $f$ hides an order 2 subgroup of this new quotient group, generated by $sr^k$, or if only the trivial subgroup remains.
+If both a cyclic and an order 2 subgroup was detected, we have a hidden dihedral subgroup. Otherwise, it is either a cyclic or an order 2 subgroup that is hidden and we have detected it. Now we move to the algorithm for detecting an order 2 subgroup.\\
+The standard procedure for solving HSP, used in Shor's algorithm for $\mathbb{Z}^\times_N$, Simon's algorithm mod $p$ (from our homework) over $\mathbb{Z}_p\times\mathbb{Z}_p$, and others, is to obtain a superposition over all possible states, then apply function unitary and apply the inverse of the unitary that gave us the superposition of all states.
+This is the same for HSP on the dihedral group. An element of $s^br^a\in D_N$ will be represented as $\ket{a}\ket{b}$, where $b\in\lbrace 0,1\rbrace$ and $a\in\mathbb{Z}_N$.
+Then $a$ will take $n=\ceil{\log(N)}$ qubits to represent, and $b$ will take 1. We also want to be able to store output, so we represent output in another $n$ qubits, so we start with $\ket{0^n}\ket{0}\ket{0^n}$.
+The circuit we apply is\\
+\[
+ \Qcircuit @C=1em @R=.7em {
+   \lstick{\ket{0^n}} & \gate{F_N} & \multigate{2}{U_f} & \gate{F^\dagger_N} & \qw \\
+   \lstick{\ket{0}}   & \gate{H}   & \ghost{U_f} & \gate{H} & \qw \\
+   \lstick{\ket{0^n}} & \qw        & \ghost{U_f} & \qw & \qw
+}
+\]
+where our unitary $U_f$ takes $\ket{a}\ket{b}\ket{c}\rightarrow\ket{a}\ket{b}\ket{c+f(a,b)}$. We also have $F_N$ is the quantum Fourier transform for $\mathbb{Z}_N$. After applying the quantum circuit, we measure the first two registers (everything but the function output). These states collapse in a similar way to Simon's algorithm's collapsing, and we are in business! In the end, measuring registers 1 and 2 gives 
+\[
+\text{Pr}[\ket{a}\ket{0}]=\frac{1}{N}(\cos^2(\frac{\pi k a}{N}))
+\]
+\[
+\text{Pr}[\ket{a}\ket{1}]=\frac{1}{N}(\sin^2(\frac{\pi k a}{N}))
+\]
+We make $m=2\ceil{64\ln(N)}$ samples using this method, and collect all of those samples with the most numerous final bit (i.e. at least $m/2$ will have final bit 1 or 0). Call this number $m'$, and the samples $z_1,\cdots,z_{m'}$. Thanks to the distribution, and a probabilistic result from Hoeffding, we have a method of determining $k$. The method is that, with high probability, $k'=k$ or $k'=N-k$ will satisfy
+\[
+\sum_{i=1}^{m'}\cos(2\pi k'z_i)>\frac{m}{4}
+\]
+and any other values of $k'$ will satisfy
+\[
+\sum_{i=1}^{m'}\cos(2\pi k'z_i)<\frac{m}{4}
+\]
+Then by enumerating through $k'=1,\cdots,N/2$, we can find a value of $k'$ that satisfies either $k'=k,N-k$, so we need to check just 3 values of $f$ after all the sampling in order to determine if we've found the correct $k$.\\
+It is known that there is a reduction from solving HSP for the Dihedral group using sampling as in this algorithm, to solve the shortest vector problem on lattices. SVP is significant as it commonly studied as a post-quantum cryptographic problem.\\
+
+
+%
+% End Midterm report
+
+\newpage
+% To refer to the reference: type \cite{what you have in bibitem braket}. For example, \cite{first} calls the first reference.
+%
+% References begin here
+\begin{thebibliography}{9}
+
+\bibitem{first}
+ Kirsten Eisentr{\"a}ger, Sean Hallgren, Alexei Kitaev, and Fang Song.
+ \emph{A quantum algorithm for computing the unit group of an arbitrary degree number field}. 2014 ACM Symposium on Theory of Computing, 2014.
+
+\bibitem{second}
+ Oded Regev.
+ \emph{A Subexponential Time Algorithm for the Dihedral Hidden Subgroup Problem with Polynomial Space}. arXiv:quant-ph/0406151, 2004.
+ 
+\bibitem{third}
+ Oded Regev.
+ \emph{Quantum Computation and Lattice Problems}. arXiv:cs/0304005, 2003.
+ 
+\bibitem{fourth}
+ Mark Ettinger, Peter Hoyer, and Emanuel Knill.
+ \emph{The quantum query complexity of the hidden subgroup problem is polynomial}. arXiv:quant-ph/0401083, 2004.
+ 
+\bibitem{fifth}
+ Mark Ettinger, Peter Hoyer.
+ \emph{On Quantum Algorithms for Noncommutative Hidden Subgroups}. arXiv:quant-ph/9807029, 1998.
+ 
+
+\end{thebibliography}
+%
+%end References
+
+\end{document}
+\ No newline at end of file
