@@ -61,7 +61,7 @@ Given a group $G$, a subgroup $H\le G$, and a set $X$, a function $f:G\rightarro
 Now, the \textbf{Hidden Subgroup Problem (HSP)} is a problem with inputs: a group $G$, a set $X$, and a function oracle $f: G\rightarrow X$ hiding a subgroup $H$. The function oracle uses $\log(\mid G\mid + \mid X\mid)$ bits. The desired output is a generating set of $H$.
 \end{defn}
 
-It is known that there exits a quantum algorithm which solves with certainty a hidden subgroup problem of an arbitrary finite group in a polynomial (in $log|G|$) number of calls to the oracle. In addition, quantum computers have been shown to have very good speedups for some instances of the problem. In fact, because quantum computers can solve the HSP on finite abelian groups in polynomial time, it is possible for quantum computers to factor integers much faster than classical computers can.\\
+It is known that there exits a quantum algorithm which solves with certainty a hidden subgroup problem of an arbitrary finite group in a polynomial (in $log|G|$) number of calls to the oracle. In addition, quantum computers have been shown to have very good speedups for some instances of the problem. In fact, because quantum computers can factor integers much faster than classical computers can, quantum computers can solve the HSP on finite abelian groups in polynomial time.\\
 
 Two unknowns regarding the HSP are whether the symmetric group and the dihedral group have efficient quantum algorithms for solving HSP. If an efficient quantum algorithm were to be found for the symmetric group HSP, we would have an efficient algorithm for \emph{graph isomorphism}, a very important problem in theoretical computer science and for Eugene Luks. A polynomial time dihedral group HSP algorithm would give a polynomial time algorithm for solving the \emph{shortest vector problem on lattices}, a problem which is...(line truncated)...
 
@@ -78,14 +78,27 @@ Our group has some background in abstract algebra and algebraic number theory, s
 %%% Also anyone is welcome to edit any section as desired!
 %%%
 
+We realize that many of the well-known quantum algorithms such as Deutsch, Simon, Order-finding, Integer factorization, etc are instances of the hidden subgroup problem. Using an algorithm similiar to these problems, we'll see that for a finite abelian group we can solve the HSP efficiently.
+\newline
+Although no efficient quantum algorithm for non-abelian groups fulfills polynomial time complexity, the quantum query complexity is polynomial. This is exponentially better than any classical algorithms.
+
 % Started By Dong
 \subsection{Quantum Time Complexity of an Abelian Group}
+We give an outline of the algorithm that solves the HSP for an abelian group $G$ in a polynomial number of operations in $log|G|$. This algorithm solves with bounded error; we can find a subset that generates the hidden subgroup with probability at least $\frac{2}{3}$. It is worth mentioning that for Abelian groups of smooth order\footnote{The order of a group $G$ is smooth if all prime factors are at most $log^{c}|G|$ for some fixed constant $c$}, this success probability can be improved to one.
+\newline
+Recall that finite Abelian groups are isomorphic to a product of finite cyclic groups of prime power order. This allows us to perform the quantum fourier transfrom of $f$ over $G$ in an efficient way. (Decomposing an arbitrary abelian group is a difficult problem. However, Shor's quantum algorithm for factorizing integers can be applied to decompose an abelian group efficiently)
+\newline
+Suppose that an abelian group $G$ is isomorphic to a product of cyclic groups $\mathbb{Z}_{t_1}\times\mathbb{Z}_{t_2}\times\cdots\times\mathbb{Z}_{t_k}$. Consider applying the operation $F_G=F_{t_1}\otimes F_{t_2}\otimes\cdots\otimes F_{t_k}$, which performs a quantum fourier transform to each ith state, to some element $g\in G$ (Here, $\ket{g}=\ket{g_1}\ket{g_2}\cdots\ket{g_k}$). Then, we attach an ancilla bit and send the state through the black box to obtain 
+$$\frac{1}{\sqrt{|G|}}\sum_{g\in G}\ket{g}\ket{f(g)}$$
+We perform a measurement on the second register to get some value $f(g^{'})$. This leaves the first register to be in the state 
+$$\frac{1}{\sqrt{|H|}}\sum_{h\in H}\ket{g^{'}+h}$$
+where $H$ is our hidden subgroup. We apply the operation $F_G$ once again then measure this first register. With certainty we get a uniformly random element of $H^{\perp}$, which is a dual group of $H$.\footnote{The dual is defined as $H^{\perp}=\{g\in G:\chi_{g}(h)=1,\forall h\in H\}$ where $\chi_{g}(h)=\prod_{i=1}^{k}e^{\frac{2\pi ig_{i}h_{i}}{t_i}}$} Thus, repeating these steps about $n=\left\lceil{log|G|}\right\rceil$ many times gives with high probability a set of generators $g^{1},\ldots,g^{O(n)}$ of $H^{\perp}$. The linear congruences corresponding to these elements determine $H$; randomly pick a solution to each linear congruence to get a uniformly random element of $H$, repeat this $O(n)$ times gives us a set of generators of $H$ with high probabilty.
 
 \subsection{Quantum Query Complexity of a Finite Group}
 Our motivation is to find an efficient quantum algorithm which can solve the HSP for any arbitrary finite group $G$ in a polynomial calls to the given oracle. Given $r$ many distinct subgroups of $G$, we are looking for a generating set for one of the subgroups. We can assume that any algorithms for the HSP always output a subset of a subgroup $H$; if an algorithm outputs some subset $X\nsubseteq H$, we simply find the intersection of $X$ with $H$ by keeping $x\in X$ only if $f(x)=f(1_G)$.
 \newline
 Let $f$ be a function satisfying the conditions of the HSP. Fix an ordering of the distinct subgroups $H_1,H_2,\ldots,H_r$ such that $|H_{i}|\geq|H_{i+1}|$ for all $1\leq i \leq r$.\footnote{
-if a function is $H$-periodic then it is also $H'$-periodic for a proper subgroup $H'$ of $H$. And we want to test for bigger subgroups first.}
+if a function $f$ is $H$-periodic then it is also $H'$-periodic for a proper subgroup $H'$ of $H$. So we want to test for bigger subgroups first.}
 Also let $N=|G|$ and consider $n=log|G|$ to be the input size. 
 \footnote{
 We know that the number of $r$ is $2^{O(n^2)}$ since any $H_i$ is generated by a set of at most $n$ elements of $G$}
@@ -106,18 +119,19 @@ $$Q_i:\quad\left\lbrace
 \qquad\text{if $l>0$}
 \end{array}
 \right.
-\text{ and  } P_{s,i}=(\sum_{t\in T_i}\ket{tH_i}\bra{tH_i}\otimes I)^{\otimes s}
+\text{ and  } P_{s,i}=\Bigg(\sum_{t\in T_i}\ket{tH_i}\bra{tH_i}\otimes I\Bigg)^{\otimes s}
 $$
 Here $Q_i$ acts on the first two registers so that once the second register is increased from 0 to 1, the first register stays the same, and $P_{s,i}$ is the projector of the $s$ couplets. The effect of $\mathsf{Test_i}$ is that $Q_i$ is applied on the first two registers if $s$ subgroup registers are in coset states of $H_i$.
 \newline
-The initial state is defined as
+We create an initial state to be
 $$\ket{\Psi_{init}}=\ket{0}\ket{0}\otimes\Bigg(\frac{1}{\sqrt{N}}\sum_{g\in G}\ket{g}\ket{f(g)}\Bigg)^{\otimes s}$$
+by $s$ many query calls.
 \begin{lem}
 If $f$ is $H_i$-periodic, then
 $$\mathsf{Test_i}\ket{\Psi_{init}}=\ket{i}\ket{1}\otimes\Bigg(\frac{1}{\sqrt{N}}\sum_{g\in G}\ket{g}\ket{f(g)}\Bigg)^{\otimes s}$$
 \end{lem}
 \begin{proof}
-First, we realize that if $f$ is $H_i$-periodic then $s$ subgroup registers are in superposition of coset states $\ket{tH_i}=\frac{1}{\sqrt{|H_i|}}\sum_{h\in H_i}\ket{th}$ for $t\in T_i$, a translation of $H_i$. Also, $f$ begin $H_i$-periodic implies that $f(t)=f(th)$ for all $t\in T_i$ and $h\in H_i$. So the state $\frac{1}{\sqrt{N}}\sum_{g\in G}\ket{g}\ket{f(g)}=\frac{1}{\sqrt{N}}\sum_{t\in T_i}\ket{tH_i}\ket{f(g)}$ lives in +1-eigenspace of $P_{1,i}$, and hence $P_{s,i}$ leaves the $s$ coulets untouched. Thus, the lemma follows.
+First, we realize that if $f$ is $H_i$-periodic then $s$ subgroup registers are in superposition of coset states $\ket{tH_i}=\frac{1}{\sqrt{|H_i|}}\sum_{h\in H_i}\ket{th}$ for $t\in T_i$, a translation of $H_i$. Also, $f$ being $H_i$-periodic implies that $f(t)=f(th)$ for all $t\in T_i$ and $h\in H_i$. So the state $\frac{1}{\sqrt{N}}\sum_{g\in G}\ket{g}\ket{f(g)}=\frac{1}{\sqrt{N}}\sum_{t\in T_i}\ket{tH_i}\ket{f(g)}$ lives in +1-eigenspace of $P_{1,i}$, and hence $P_{s,i}$ leaves the $s$ couplets untouched. Thus, the lemma follows.
 \end{proof}
 \noindent At the end of the day, what we want to do is to apply the unitary $\mathsf{Test}$ to the initial state $\ket{\Psi_{init}}$ to get $\ket{\Psi_{final}}$. Then, we measure the first register of $\ket{\Psi_{final}}$ to get the subgroup index $v$, and if $1\leq v \leq r$ we output a generating set for $H_i$, otherwise we output ${1_G}$. But our output may be a wrong answer.
 \newline
@@ -129,7 +143,19 @@ If $f$ is not $H_i$-periodic, then the distance $\big|(\mathsf{Test_i}\ket{\Psi_
 \begin{lem}
 If $f$ is not $H_i$-periodic for any $1\leq i \leq j$, then the distance $\big|\ket{\Psi_j}-\ket{\Psi_{init}}\big|$ is at most $\frac{2j}{2^{s+2}}$.
 \end{lem}
-\noindent At the beggining in the Theorem, we stated that the error probability is exponential. Great news is that we can make the algorithm exact by the use of amplitude amlification. This is something we want to show in the final paper.
+\noindent At the beggining in the Theorem, we stated that the error probability is exponential. Great news is that we can make the algorithm exact by the use of classical precomputing and amplitude amlification.
+\newline
+First, we partition the set of subgroups $\{H_1,H_2,\ldots,H_r\}$ into $Y_{1/4}$ and $Y_{3/4}$. We'll look at a new algorithm called $\mathsf{ExactTest}$ that identifies which of the partition the hidden subgroup belongs to.
+\begin{lem}
+Consider measuring the ancilla qubit of the state $\mathsf{ExactTest}(\ket{\Psi_{init}}\otimes\ket{0})$. The probability that the outcome of this measurement is 1 is 3/4 if the hidden subgroup $H$ is in $Y_{3/4}$, and it is 1/4 if $H$ is in $Y_{1/4}$.
+\end{lem}
+\noindent In order to describe what $\mathsf{ExactTest}$ is, we need to define few things. Let $Prob[H_i|H]$ be the probability that the measurement outcome of the first register of $\ket{\Psi_{final}}$ is $i$, conditioned on the hidden subgroup being $H$. Let $M$ be an $r\times r$ matrix over $[0,1]$ with each row and column indexed by a subgroup. Let entry $(H,H_i)$ of $M$ be $Prob[H_i|H]$. Let $y$ be an $r\times 1$ vector with entries from $\{1/4,3/4\}$ and each entry indexed by a subgroup. Let $x=M^{-1}y$. Every entry of $x$ is in $[0,1]$ for $r\geq 4$.
+\newline
+Now we define $\mathsf{ExactTest}$
+$$\mathsf{ExactTest}=\mathsf{R}\cdot(\mathsf{Test}\otimes\mathsf{I})$$
+When we apply $\mathsf{ExactTest}$ to the state $\ket{\Psi_{init}}\otimes\ket{0}$, $\mathsf{Test}$ is applied to the state $\ket{\Psi_{init}}$ and leaves the ancilla unchanged. Then, $\mathsf{R}$ is applied, which is unitary that transforms the ancilla qubit $\ket{0}$ into $\sqrt{1-x_i}\ket{0}+\sqrt{x_i}\ket{1}$, conditioned on the output register holding the subgroup index $i$. Thus, the probability that the measurement outcome of the ancilla qubit being 1 is $\sum_{i}x_i Prob[H_i|H_v]$, which is precisely the entry $y_v$ of $y$, where $H_v$ is the hidden subgroup. So we just need to set $y_v=3/4$ if $H_v\in Y_{3/4}$ or set $y_v=1/4$ if $H_v\in Y_{1/4}$. This proves the lemma
+\newline
+The lemma showed us that we can distinguish between the two sets $Y_{3/4}$ and $Y_{1/4}$ with probabilites $3/4$ and $1/4$, respectively. Now by using amplitude amplification, we can alter these probabilities into being 0 and 1. Hence, we can distiguish between the two sets. Applying binary search on the set of subgroups, varying the choices of $Y_{3/4}$ and $Y_{1/4}$, we can find the hidden subgroup with certainty.
 
 \section{Shor's algorithm reduct to HSP problem of $\mathbb{Z_{N}}$}
   Shor's algorithm reduce the problem of  factorization of a composite natural number $\mathbb{N}$ to finding the order of an arbitrary non-identity element in $\mathbb{Z_{N}}$.  
@@ -232,6 +258,9 @@ It is known that there is a reduction from solving HSP for the Dihedral group us
  Mark Ettinger, Peter Hoyer.
  \emph{On Quantum Algorithms for Noncommutative Hidden Subgroups}. arXiv:quant-ph/9807029, 1998.
  
+\bibitem{sixth}
+ Fr\'{e}d\'{e}ric Wang.
+ \emph{The Hidden Subgroup Problem}. arXiv:1008.0010, 2010.
 
 \end{thebibliography}
 %
